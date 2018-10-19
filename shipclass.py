@@ -10,6 +10,8 @@ class BetterShip(entity.Ship):
         self.returning = False
         self.game_map = gmmap
 
+#delete this later#
+#class Dlete():
 
 #creates a list of form ((x,y), halite amount, occupied or not) in ascending halite value in 4 cardinal directions
     def check_surroundings(self):
