@@ -46,9 +46,9 @@ while True:
         if b_ship.returning:
             command_queue.append(
                 ship.move(game_map.naive_navigate(ship, me.shipyard.position)))
-        # elif b_ship.exploring:
-        #     command_queue.append(
-        #         ship.move(game_map.naive_navigate(ship, positionals.Position(0,0))))
+        elif b_ship.exploring:
+            command_queue.append(
+                ship.move(game_map.naive_navigate(ship, b_ship.target )))
         elif b_ship.halite_amount > 700 and not b_ship.returning:
             b_ship.returning = True
             command_queue.append(
@@ -60,6 +60,8 @@ while True:
             command_queue.append(
                 ship.move(spawn_cardinals[spawn_counter%4]))
             spawn_counter += 1
+        elif b_ship.halite_amount<20 and game_map[ship.position].halite_amount>0:
+            command_queue.append(ship.stay_still())
         elif game_map[ship.position].halite_amount > min_halite:
             command_queue.append((ship.stay_still()))
             # b_ship.exploring = False
