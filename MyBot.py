@@ -46,6 +46,9 @@ while True:
         if b_ship.returning:
             command_queue.append(
                 ship.move(game_map.naive_navigate(ship, me.shipyard.position)))
+        elif b_ship.position == b_ship.target and b_ship.exploring:
+            b_ship.exploring = False
+            command_queue.append(ship.stay_still())
         elif b_ship.exploring:
             command_queue.append(
                 ship.move(game_map.naive_navigate(ship, b_ship.target )))
@@ -71,14 +74,14 @@ while True:
 #SCOPE SCOPE SCOPE#
         elif b_ship.scarce_move(b_ship.check_surroundings(), min_halite) == True:
             b_ship.exploring = True
-            b_ship.target = b_ship.get_target2(scope)
+            b_ship.target = b_ship.get_target(scope)
             
         elif b_ship.safe_move(b_ship.check_surroundings()):
             command_queue.append(ship.move(game_map.naive_navigate(ship, b_ship.safe_move(b_ship.check_surroundings()))))
 
         else:
             command_queue.append(ship.stay_still())
-
+#NEW ASSHOLE
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
 
