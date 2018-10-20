@@ -28,7 +28,7 @@ class BetterShip(entity.Ship):
         for i in sorted_list:
             if i[1] <= min_halite / 10:
                 scarce_condition += 1
-        if scarce_condition >= 4:
+        if scarce_condition >= 3:
             return True
         else:
             return False
@@ -43,7 +43,7 @@ class BetterShip(entity.Ship):
         if len(final_list):
             return(final_list[-1][0])
         else:
-            return False        
+            return ()        
 
 #returns the position of the square with the most 
 #halite in a square centered around the ship +/- scope in each direction
@@ -62,4 +62,28 @@ class BetterShip(entity.Ship):
         if self.halite_amount >= threshold:
             self.returning = True
 
-    
+class Fleet:
+    def __init__(self, player_id, game_map):
+        self.ships = player_id.get_ships()
+        self.game_map = game_map
+        for i in range(len(self.ships)):
+            self.ships[i]=BetterShip(self.ships[i], self.game_map)
+        self.ship_positions = {}
+        for s in self.ships:
+            self.ship_positions[s] = s.position
+        self.ship_orders = {}
+    def fleet_navigate(self, ship, destination):
+        for direction in self.game_map.get_unsafe_moves(ship.position, destination):
+            target_pos = ship.position.directional_offset(direction)
+            if target_pos not in self.ship_orders.values():
+                self.ship_orders[ship] = target_pos
+                return direction
+        return positionals.Direction.Still
+    def fleet_stay_still(self, ship):
+        if ship.position in self.ship_orders.values():
+            for location in ship.position.get_surrounding_cardinals():
+                if location not in self.ship_orders.values():
+                    return ship.move(self.fleet_navigate(ship, location))
+        else:
+            self.ship_orders[ship]=ship.position
+            return ship.stay_still()

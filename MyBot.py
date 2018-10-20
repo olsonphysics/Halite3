@@ -24,7 +24,7 @@ logging.info("Successfully created bot! My Player ID is {}.".format(game.my_id))
 build = True
 min_halite = 100
 #future optimization is to make scope dynamic based on map size and player count#
-scope = 5
+scope = 10
 
 """ <<<Game Loop>>> """
 
@@ -34,7 +34,7 @@ while True:
     me = game.me
     game_map = game.game_map
     ship_list = []    
-
+    my_fleet = shipclass.Fleet(me, game_map)
     # A command queue holds all the commands you will run this turn. You build this list up and submit it at the
     #   end of the turn.
     command_queue = []
@@ -45,28 +45,29 @@ while True:
 #returning based commands#
         if b_ship.returning:
             command_queue.append(
-                ship.move(game_map.naive_navigate(ship, me.shipyard.position)))
+                ship.move(my_fleet.fleet_navigate(ship, me.shipyard.position)))
         elif b_ship.position == b_ship.target and b_ship.exploring:
             b_ship.exploring = False
-            command_queue.append(ship.stay_still())
+            command_queue.append(my_fleet.fleet_stay_still(ship))
         elif b_ship.exploring:
             command_queue.append(
-                ship.move(game_map.naive_navigate(ship, b_ship.target )))
+                ship.move(my_fleet.fleet_navigate(ship, b_ship.target )))
         elif b_ship.halite_amount > 700 and not b_ship.returning:
             b_ship.returning = True
             command_queue.append(
-                ship.move(game_map.naive_navigate(ship, me.shipyard.position)))
+                ship.move(my_fleet.fleet_navigate(ship, me.shipyard.position)))
 
 #shipyard based commands#
-        elif b_ship.position == me.shipyard.position and not game_map[b_ship.position.directional_offset(spawn_cardinals[spawn_counter%4])].is_occupied:
+        elif b_ship.position == me.shipyard.position:# and not game_map[b_ship.position.directional_offset(spawn_cardinals[spawn_counter%4])].is_occupied:
             b_ship.returning = False
+            b_ship.target = b_ship.get_target(scope)
             command_queue.append(
-                ship.move(spawn_cardinals[spawn_counter%4]))
-            spawn_counter += 1
-        elif b_ship.halite_amount<20 and game_map[ship.position].halite_amount>0:
-            command_queue.append(ship.stay_still())
+                ship.move(my_fleet.fleet_navigate(ship, b_ship.target )))
+
+        elif b_ship.halite_amount < (0.1*game_map[ship.position].halite_amount):
+            command_queue.append(my_fleet.fleet_stay_still(ship))
         elif game_map[ship.position].halite_amount > min_halite:
-            command_queue.append((ship.stay_still()))
+            command_queue.append((my_fleet.fleet_stay_still(ship)))
             # b_ship.exploring = False
             # b_ship.target = b_ship.position
 
@@ -75,12 +76,14 @@ while True:
         elif b_ship.scarce_move(b_ship.check_surroundings(), min_halite) == True:
             b_ship.exploring = True
             b_ship.target = b_ship.get_target(scope)
+            command_queue.append(
+                ship.move(my_fleet.fleet_navigate(ship, b_ship.target )))
             
         elif b_ship.safe_move(b_ship.check_surroundings()):
-            command_queue.append(ship.move(game_map.naive_navigate(ship, b_ship.safe_move(b_ship.check_surroundings()))))
+            command_queue.append(ship.move(my_fleet.fleet_navigate(ship, b_ship.safe_move(b_ship.check_surroundings()))))
 
         else:
-            command_queue.append(ship.stay_still())
+            command_queue.append(my_fleet.fleet_stay_still(ship))
 #NEW ASSHOLE
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
