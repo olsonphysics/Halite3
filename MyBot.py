@@ -46,6 +46,10 @@ while True:
         if b_ship.returning:
             command_queue.append(
                 ship.move(my_fleet.fleet_navigate(ship, me.shipyard.position)))
+        elif constants.MAX_TURNS - game.turn_number <= 15:
+            b_ship.returning = True
+            command_queue.append(
+                ship.move(my_fleet.fleet_navigate(ship, me.shipyard.position)))
         elif b_ship.halite_amount > 700 and not b_ship.returning:
             b_ship.returning = True
             command_queue.append(
@@ -80,7 +84,7 @@ while True:
             b_ship.exploring = True
             b_ship.target = b_ship.get_target(scope)
             command_queue.append(
-                ship.move(my_fleet.fleet_navigate(ship, b_ship.target )))
+                ship.move(my_fleet.fleet_navigate(ship, b_ship.target)))
             
         elif b_ship.safe_move(b_ship.check_surroundings()):
             command_queue.append(ship.move(my_fleet.fleet_navigate(ship, b_ship.safe_move(b_ship.check_surroundings()))))

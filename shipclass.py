@@ -1,5 +1,5 @@
 from hlt import entity, positionals, game_map, constants
-
+import random
 
 class BetterShip(entity.Ship):
     def __init__(self, ship_id, gmmap):
@@ -53,7 +53,8 @@ class BetterShip(entity.Ship):
             for y in range(self.game_map.height):
                 halite_list.append((positionals.Position(x,y), self.game_map[positionals.Position(x,y)].halite_amount))
         sorted_list = sorted(halite_list, key=lambda t: t[1])
-        return sorted_list[-1][0]
+        top_targets = sorted_list[-10:-1]
+        return random.choice(top_targets)[0]
 
     def get_target2(self, scope):
         return self.position.directional_offset(positionals.Direction.East)
