@@ -49,8 +49,8 @@ class BetterShip(entity.Ship):
 #halite in a square centered around the ship +/- scope in each direction
     def get_target(self, scope):
         halite_list=[]
-        for x in range(self.position.x-scope,self.position.x+scope):
-            for y in range(self.position.y-scope,self.position.y+scope):
+        for x in range(self.game_map.width):
+            for y in range(self.game_map.height):
                 halite_list.append((positionals.Position(x,y), self.game_map[positionals.Position(x,y)].halite_amount))
         sorted_list = sorted(halite_list, key=lambda t: t[1])
         return sorted_list[-1][0]
@@ -78,6 +78,7 @@ class Fleet:
             if target_pos not in self.ship_orders.values():
                 self.ship_orders[ship] = target_pos
                 return direction
+        self.ship_orders[ship] = ship.position
         return positionals.Direction.Still
     def fleet_stay_still(self, ship):
         if ship.position in self.ship_orders.values():
